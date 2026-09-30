@@ -1,0 +1,8 @@
+# Формат: стан;назва;сорт;вага_г;ціна_грн;упаковка;аромат;кислотність;тіло;особливість
+# Повний опис формату - у src/main/resources/coffee-catalog.csv
+# Помилка в рядку 7: одрук у назві упаковки (PAPER_BAGG замість PAPER_BAG).
+
+BEANS;Colombia Supremo;ARABICA;1000;1150.00;VACUUM_PACK;8;6;7;MEDIUM
+GROUND;Kenya AA;ARABICA;250;420.00;PAPER_BAG;9;9;6;MEDIUM
+BEANS;Ethiopia Yirgacheffe;ARABICA;250;465.00;PAPER_BAGG;9;8;5;LIGHT
+INSTANT;Gold Arabica;ARABICA;200;340.00;GLASS_JAR;6;4;5;FREEZE_DRIED

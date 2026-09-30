@@ -1,0 +1,13 @@
+# Формат: стан;назва;сорт;вага_г;ціна_грн;упаковка;аромат;кислотність;тіло;особливість
+# Повний опис формату - у src/main/resources/coffee-catalog.csv
+# Лише розчинна кава. Gold Freeze Dried продається і в банці,
+# і в пакетиках - порівняйте їхній об'єм і ціну за кілограм.
+
+INSTANT;Gold Freeze Dried;ARABICA;200;360.00;GLASS_JAR;6;4;5;FREEZE_DRIED
+INSTANT;Gold Freeze Dried Sticks;ARABICA;200;420.00;SACHET;6;4;5;FREEZE_DRIED
+INSTANT;Premium Arabica Crystals;ARABICA;100;260.00;GLASS_JAR;7;5;5;FREEZE_DRIED
+INSTANT;Liberica Instant;LIBERICA;100;210.00;GLASS_JAR;6;3;7;FREEZE_DRIED
+INSTANT;Crema Granules;ARABICA;190;290.00;GLASS_JAR;5;3;5;AGGLOMERATED
+INSTANT;Classic Granules;ROBUSTA;500;480.00;TIN_CAN;4;2;7;AGGLOMERATED
+INSTANT;Strong Powder;ROBUSTA;1000;690.00;TIN_CAN;3;2;8;SPRAY_DRIED
+INSTANT;Robusta Sticks;ROBUSTA;90;120.00;SACHET;4;2;7;SPRAY_DRIED
