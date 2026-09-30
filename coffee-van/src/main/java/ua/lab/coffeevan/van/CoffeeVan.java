@@ -13,6 +13,7 @@ package ua.lab.coffeevan.van;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -26,7 +27,7 @@ import ua.lab.coffeevan.model.Coffee;
  * <p>Має обмежений вантажний об'єм і бюджет на закупівлю товару.
  * Фургон не дозволяє завантажити товар, якщо той не вміщується
  * за об'ємом (з урахуванням упаковки) або коштує більше, ніж залишок
- * бюджету.
+ * бюджету. Вантаж можна відсортувати за ціною кілограма кави.
  *
  * @author rina4203
  * @version 1.0
@@ -97,6 +98,14 @@ public class CoffeeVan {
                     getRemainingBudget().toPlainString()));
         }
         cargo.add(coffee);
+    }
+
+    /**
+     * Сортує вантаж за зростанням співвідношення ціни та ваги,
+     * тобто ціни одного кілограма кави.
+     */
+    public void sortCargoByPricePerKilogram() {
+        cargo.sort(Comparator.comparing(Coffee::getPricePerKilogram));
     }
 
     /**

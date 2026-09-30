@@ -139,11 +139,33 @@ class CoffeeVanTest {
                 () -> cargo.add(coffee));
     }
 
+    @Test
+    @DisplayName("сортує вантаж за зростанням ціни кілограма")
+    void sortsCargoByPricePerKilogram() {
+        Coffee expensive = coffeeWithPricePerKilogram("1860");
+        Coffee cheap = coffeeWithPricePerKilogram("560");
+        Coffee middle = coffeeWithPricePerKilogram("1150");
+        van.load(expensive);
+        van.load(cheap);
+        van.load(middle);
+
+        van.sortCargoByPricePerKilogram();
+
+        assertEquals(List.of(cheap, middle, expensive), van.getCargo());
+    }
+
     private static Coffee coffee(String name, double volume, String price) {
         Coffee coffee = mock(Coffee.class);
         when(coffee.getName()).thenReturn(name);
         when(coffee.getVolumeLiters()).thenReturn(volume);
         when(coffee.getPrice()).thenReturn(new BigDecimal(price));
+        return coffee;
+    }
+
+    private static Coffee coffeeWithPricePerKilogram(String pricePerKg) {
+        Coffee coffee = coffee("Coffee", 1.0, "10");
+        when(coffee.getPricePerKilogram())
+                .thenReturn(new BigDecimal(pricePerKg));
         return coffee;
     }
 }
