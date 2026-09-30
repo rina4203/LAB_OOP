@@ -1,0 +1,9 @@
+# Текстові файли зберігаються в репозиторії з LF
+* text=auto
+
+# Скрипти Windows і описи сценаріїв (їх читає cmd) - завжди з CRLF
+*.cmd text eol=crlf
+about.txt text eol=crlf
+
+# Скрипт для Linux/macOS - завжди з LF
+mvnw text eol=lf
