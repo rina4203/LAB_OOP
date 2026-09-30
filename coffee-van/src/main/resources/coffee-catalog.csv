@@ -1,0 +1,31 @@
+# Каталог кавових товарів, доступних для завантаження у фургон.
+# Товари завантажуються у порядку переліку.
+#
+# Формат: стан;назва;сорт;вага_г;ціна_грн;упаковка;аромат;кислотність;тіло;особливість
+#   стан        - BEANS (у зернах), GROUND (мелена), INSTANT (розчинна)
+#   сорт        - ARABICA, ROBUSTA, LIBERICA, EXCELSA
+#   упаковка    - BEANS:   PAPER_BAG, VACUUM_PACK
+#                 GROUND:  PAPER_BAG, VACUUM_PACK, TIN_CAN
+#                 INSTANT: GLASS_JAR, TIN_CAN, SACHET
+#   якість      - оцінки аромату, кислотності та тіла від 0 до 10
+#   особливість - BEANS:   LIGHT, MEDIUM, DARK (обсмаження)
+#                 GROUND:  FINE, MEDIUM, COARSE (помел)
+#                 INSTANT: FREEZE_DRIED, AGGLOMERATED, SPRAY_DRIED
+
+BEANS;Ethiopia Yirgacheffe;ARABICA;250;465.00;PAPER_BAG;9;8;5;LIGHT
+BEANS;Colombia Supremo;ARABICA;1000;1150.00;VACUUM_PACK;8;6;7;MEDIUM
+BEANS;Brazil Santos;ARABICA;1000;890.00;PAPER_BAG;7;4;7;MEDIUM
+BEANS;Vietnam Dak Lak Robusta;ROBUSTA;1000;620.00;PAPER_BAG;5;2;9;DARK
+BEANS;Philippines Barako;LIBERICA;500;540.00;PAPER_BAG;7;3;8;DARK
+
+GROUND;Kenya AA;ARABICA;250;420.00;PAPER_BAG;9;9;6;MEDIUM
+GROUND;Espresso Italiano;ARABICA;250;330.00;TIN_CAN;8;5;8;FINE
+GROUND;Guatemala Antigua;ARABICA;500;610.00;VACUUM_PACK;8;7;7;COARSE
+GROUND;India Cherry Robusta;ROBUSTA;1000;560.00;VACUUM_PACK;4;2;9;FINE
+GROUND;Malaysia Excelsa;EXCELSA;250;380.00;PAPER_BAG;7;6;6;MEDIUM
+
+INSTANT;Gold Arabica;ARABICA;200;340.00;GLASS_JAR;6;4;5;FREEZE_DRIED
+INSTANT;Classic Robusta;ROBUSTA;500;450.00;TIN_CAN;3;2;7;SPRAY_DRIED
+INSTANT;Crema Sticks;ARABICA;50;95.00;SACHET;5;3;4;AGGLOMERATED
+INSTANT;Strong Morning;ROBUSTA;100;120.00;GLASS_JAR;4;2;8;AGGLOMERATED
+INSTANT;Barista Sticks;ARABICA;36;85.00;SACHET;6;4;5;FREEZE_DRIED
