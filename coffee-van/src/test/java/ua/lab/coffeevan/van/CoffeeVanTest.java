@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -185,6 +186,90 @@ class CoffeeVanTest {
     void rejectsNullRange() {
         assertThrows(NullPointerException.class,
                 () -> van.findByQuality(null));
+    }
+
+    @Test
+    @DisplayName("у повідомленнях називається \"фургон\"")
+    void hasDisplayName() {
+        assertEquals("фургон", van.getDisplayName());
+        IndexOutOfBoundsException e = assertThrows(
+                IndexOutOfBoundsException.class, () -> van.get(0));
+        assertTrue(e.getMessage().contains("фургон"));
+    }
+
+    @Test
+    @DisplayName("під час заміни враховує місце й гроші старого товару")
+    void replacesWithinReleasedLimits() {
+        van.load(coffee("Other", 2.0, "200"));
+        van.load(coffee("Old", 8.0, "800"));
+        Coffee bigger = coffee("New", 8.0, "800");
+
+        Coffee replaced = van.replace(1, bigger);
+
+        assertEquals("Old", replaced.getName());
+        assertEquals(List.of("Other", "New"), names(van));
+        assertEquals(0.0, van.getFreeVolumeLiters(), DELTA);
+    }
+
+    @Test
+    @DisplayName("не замінює товар, якому бракує місця")
+    void rejectsReplacementExceedingVolume() {
+        van.load(coffee("Other", 2.0, "100"));
+        Coffee old = coffee("Old", 3.0, "100");
+        van.load(old);
+
+        CargoLoadingException e = assertThrows(CargoLoadingException.class,
+                () -> van.replace(1, coffee("Huge", 8.5, "100")));
+
+        assertTrue(e.getMessage().contains("вільно 8.00 л"));
+        assertEquals(List.of("Other", "Old"), names(van));
+    }
+
+    @Test
+    @DisplayName("не замінює товар, якому бракує коштів")
+    void rejectsReplacementExceedingBudget() {
+        van.load(coffee("Other", 1.0, "600"));
+        van.load(coffee("Old", 1.0, "300"));
+
+        CargoLoadingException e = assertThrows(CargoLoadingException.class,
+                () -> van.replace(1, coffee("Pricey", 1.0, "400.01")));
+
+        assertTrue(e.getMessage().contains("залишок 400.00 грн"));
+        assertEquals(List.of("Other", "Old"), names(van));
+    }
+
+    @Test
+    @DisplayName("після видалення товару звільняє місце й гроші")
+    void releasesSpaceOnRemove() {
+        Coffee first = coffee("First", 4.0, "400");
+        van.load(first);
+        van.load(coffee("Second", 1.0, "100"));
+
+        Coffee removed = van.remove(0);
+
+        assertEquals(first, removed);
+        assertEquals(9.0, van.getFreeVolumeLiters(), DELTA);
+        assertEquals(new BigDecimal("900.00"), van.getRemainingBudget());
+        assertEquals(1, van.size());
+    }
+
+    @Test
+    @DisplayName("вивантажує все й стає порожнім")
+    void removesAllCargo() {
+        van.load(coffee("First", 4.0, "400"));
+        van.load(coffee("Second", 1.0, "100"));
+
+        List<Coffee> removed = van.removeAll();
+
+        assertEquals(2, removed.size());
+        assertTrue(van.isEmpty());
+        assertEquals(CAPACITY, van.getFreeVolumeLiters(), DELTA);
+    }
+
+    private static List<String> names(CoffeeVan van) {
+        return van.getCargo().stream()
+                .map(Coffee::getName)
+                .collect(Collectors.toList());
     }
 
     private static Coffee coffee(String name, double volume, String price) {

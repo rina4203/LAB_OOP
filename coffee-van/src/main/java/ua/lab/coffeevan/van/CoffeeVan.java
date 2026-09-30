@@ -11,17 +11,12 @@
 package ua.lab.coffeevan.van;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import ua.lab.coffeevan.exception.CargoLoadingException;
 import ua.lab.coffeevan.model.Coffee;
-import ua.lab.coffeevan.model.QualityRange;
+import ua.lab.coffeevan.stock.CoffeeCollection;
 
 /**
  * Фургон для перевезення кави.
@@ -29,20 +24,20 @@ import ua.lab.coffeevan.model.QualityRange;
  * <p>Має обмежений вантажний об'єм і бюджет на закупівлю товару.
  * Фургон не дозволяє завантажити товар, якщо той не вміщується
  * за об'ємом (з урахуванням упаковки) або коштує більше, ніж залишок
- * бюджету. Вантаж можна відсортувати за ціною кілограма кави та
- * відібрати товари з заданими параметрами якості.
+ * бюджету. Ті самі обмеження діють і під час заміни товару у вантажі.
+ * Вантаж можна відсортувати за ціною кілограма кави та відібрати товари
+ * з заданими параметрами якості.
  *
  * @author rina4203
  * @version 1.0
  */
-public class CoffeeVan {
+public class CoffeeVan extends CoffeeCollection {
 
     /** Допустима похибка при порівнянні об'ємів, л. */
     private static final double VOLUME_TOLERANCE = 1e-9;
 
     private final double capacityLiters;
     private final BigDecimal budget;
-    private final List<Coffee> cargo = new ArrayList<>();
 
     /**
      * Створює порожній фургон.
@@ -65,6 +60,11 @@ public class CoffeeVan {
         this.budget = budget;
     }
 
+    @Override
+    public String getDisplayName() {
+        return "фургон";
+    }
+
     /**
      * Перевіряє, чи можна завантажити товар у фургон.
      *
@@ -73,7 +73,7 @@ public class CoffeeVan {
      *         і залишку бюджету
      */
     public boolean canLoad(Coffee coffee) {
-        return fitsVolume(coffee) && fitsBudget(coffee);
+        return fitsVolume(coffee, null) && fitsBudget(coffee, null);
     }
 
     /**
@@ -85,22 +85,7 @@ public class CoffeeVan {
      *                               або бюджетом
      */
     public void load(Coffee coffee) {
-        Objects.requireNonNull(coffee, "Товар не задано");
-        if (!fitsVolume(coffee)) {
-            throw new CargoLoadingException(String.format(Locale.ROOT,
-                    "Недостатньо місця для \"%s\": потрібно %.2f л, "
-                            + "вільно %.2f л",
-                    coffee.getName(), coffee.getVolumeLiters(),
-                    getFreeVolumeLiters()));
-        }
-        if (!fitsBudget(coffee)) {
-            throw new CargoLoadingException(String.format(Locale.ROOT,
-                    "Недостатньо коштів для \"%s\": потрібно %s грн, "
-                            + "залишок %s грн",
-                    coffee.getName(), coffee.getPrice().toPlainString(),
-                    getRemainingBudget().toPlainString()));
-        }
-        cargo.add(coffee);
+        add(coffee);
     }
 
     /**
@@ -108,21 +93,7 @@ public class CoffeeVan {
      * тобто ціни одного кілограма кави.
      */
     public void sortCargoByPricePerKilogram() {
-        cargo.sort(Comparator.comparing(Coffee::getPricePerKilogram));
-    }
-
-    /**
-     * Знаходить у фургоні товари, параметри якості яких потрапляють
-     * у заданий діапазон.
-     *
-     * @param range діапазон параметрів якості
-     * @return знайдені товари у порядку розміщення у фургоні
-     */
-    public List<Coffee> findByQuality(QualityRange range) {
-        Objects.requireNonNull(range, "Діапазон якості не задано");
-        return cargo.stream()
-                .filter(coffee -> range.contains(coffee.getQuality()))
-                .collect(Collectors.toList());
+        sort(Coffee.BY_PRICE_PER_KILOGRAM);
     }
 
     /**
@@ -131,7 +102,7 @@ public class CoffeeVan {
      * @return незмінний список завантажених товарів
      */
     public List<Coffee> getCargo() {
-        return Collections.unmodifiableList(cargo);
+        return getItems();
     }
 
     /**
@@ -158,7 +129,9 @@ public class CoffeeVan {
      * @return зайнятий об'єм, л
      */
     public double getLoadedVolumeLiters() {
-        return cargo.stream().mapToDouble(Coffee::getVolumeLiters).sum();
+        return getItems().stream()
+                .mapToDouble(Coffee::getVolumeLiters)
+                .sum();
     }
 
     /**
@@ -176,7 +149,7 @@ public class CoffeeVan {
      * @return вартість вантажу, грн
      */
     public BigDecimal getCargoCost() {
-        return cargo.stream()
+        return getItems().stream()
                 .map(Coffee::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -190,12 +163,49 @@ public class CoffeeVan {
         return budget.subtract(getCargoCost());
     }
 
-    private boolean fitsVolume(Coffee coffee) {
-        return coffee.getVolumeLiters()
-                <= getFreeVolumeLiters() + VOLUME_TOLERANCE;
+    /**
+     * Не дозволяє товару потрапити у фургон, якщо йому бракує
+     * вільного об'єму чи залишку бюджету. Під час заміни враховуються
+     * об'єм і вартість товару, що замінюється.
+     *
+     * @param coffee   товар, що додається
+     * @param replaced товар, який він замінює, або {@code null}
+     * @throws CargoLoadingException якщо товар не вміщується
+     */
+    @Override
+    protected void checkCanAdd(Coffee coffee, Coffee replaced) {
+        if (!fitsVolume(coffee, replaced)) {
+            throw new CargoLoadingException(String.format(Locale.ROOT,
+                    "Недостатньо місця для \"%s\": потрібно %.2f л, "
+                            + "вільно %.2f л",
+                    coffee.getName(), coffee.getVolumeLiters(),
+                    getAvailableVolume(replaced)));
+        }
+        if (!fitsBudget(coffee, replaced)) {
+            throw new CargoLoadingException(String.format(Locale.ROOT,
+                    "Недостатньо коштів для \"%s\": потрібно %s грн, "
+                            + "залишок %s грн",
+                    coffee.getName(), coffee.getPrice().toPlainString(),
+                    getAvailableBudget(replaced).toPlainString()));
+        }
     }
 
-    private boolean fitsBudget(Coffee coffee) {
-        return coffee.getPrice().compareTo(getRemainingBudget()) <= 0;
+    private boolean fitsVolume(Coffee coffee, Coffee replaced) {
+        return coffee.getVolumeLiters()
+                <= getAvailableVolume(replaced) + VOLUME_TOLERANCE;
+    }
+
+    private boolean fitsBudget(Coffee coffee, Coffee replaced) {
+        return coffee.getPrice().compareTo(getAvailableBudget(replaced)) <= 0;
+    }
+
+    private double getAvailableVolume(Coffee replaced) {
+        return (replaced == null) ? getFreeVolumeLiters()
+                : getFreeVolumeLiters() + replaced.getVolumeLiters();
+    }
+
+    private BigDecimal getAvailableBudget(Coffee replaced) {
+        return (replaced == null) ? getRemainingBudget()
+                : getRemainingBudget().add(replaced.getPrice());
     }
 }

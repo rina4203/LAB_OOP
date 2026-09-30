@@ -12,6 +12,7 @@ package ua.lab.coffeevan.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,6 +28,13 @@ import java.util.Set;
  * @version 1.0
  */
 public abstract class Coffee {
+
+    /**
+     * Порядок товарів за зростанням співвідношення ціни та ваги,
+     * тобто ціни одного кілограма кави.
+     */
+    public static final Comparator<Coffee> BY_PRICE_PER_KILOGRAM =
+            Comparator.comparing(Coffee::getPricePerKilogram);
 
     private static final int GRAMS_PER_KILOGRAM = 1000;
     private static final double CUBIC_CM_PER_LITER = 1000.0;
