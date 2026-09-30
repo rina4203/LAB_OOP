@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ua.lab.coffeevan.TestCoffees;
 import ua.lab.coffeevan.model.Coffee;
 import ua.lab.coffeevan.model.CoffeeBeans;
 import ua.lab.coffeevan.model.CoffeeVariety;
@@ -37,6 +38,7 @@ import ua.lab.coffeevan.model.InstantProcess;
 import ua.lab.coffeevan.model.PackagingType;
 import ua.lab.coffeevan.model.Quality;
 import ua.lab.coffeevan.model.RoastLevel;
+import ua.lab.coffeevan.stock.CoffeeCatalog;
 import ua.lab.coffeevan.van.CoffeeVan;
 
 @ExtendWith(MockitoExtension.class)
@@ -116,6 +118,51 @@ class CargoReportPrinterTest {
         assertTrue(report.contains("--- Пошук ---"));
         assertTrue(report.contains("(товарів немає)"));
         assertFalse(report.contains("Назва"));
+    }
+
+    @Test
+    @DisplayName("стан фургона містить заголовок, об'єм, бюджет і кількість")
+    void printsVanState() {
+        CoffeeVan realVan = new CoffeeVan(5.0, new BigDecimal("2000"));
+        realVan.load(TestCoffees.beans("Colombia", "1150"));
+
+        printer.printVanState(realVan);
+
+        String report = output();
+        assertTrue(report.contains("=== Стан фургона ==="));
+        assertTrue(report.contains("зайнято 2,75 л з 5,00 л"));
+        assertTrue(report.contains("витрачено 1150,00 грн з 2000,00 грн"));
+        assertTrue(report.contains("Товарів:   у фургоні 1"));
+    }
+
+    @Test
+    @DisplayName("список виводиться з назвою, кількістю й номерами")
+    void printsCollection() {
+        CoffeeCatalog catalog = new CoffeeCatalog(List.of(
+                TestCoffees.beans("Colombia", "1150"),
+                TestCoffees.ground("Kenya AA", "420")));
+
+        printer.printCollection(catalog);
+
+        String report = output();
+        assertTrue(report.contains("--- Каталог (товарів: 2) ---"));
+        assertTrue(report.contains("  1  Colombia"));
+        assertTrue(report.contains("  2  Kenya AA"));
+    }
+
+    @Test
+    @DisplayName("знайдені товари показуються з номерами у своєму списку")
+    void printsItemsWithSourceNumbers() {
+        Coffee kenya = TestCoffees.ground("Kenya AA", "420");
+        CoffeeCatalog catalog = new CoffeeCatalog(List.of(
+                TestCoffees.beans("Colombia", "1150"),
+                TestCoffees.instant("Gold", "340"), kenya));
+
+        printer.printItems("Знайдено", catalog, List.of(kenya));
+
+        String[] lines = output().split("\\R");
+        assertTrue(lines[3].startsWith("  3  Kenya AA"));
+        assertEquals(4, lines.length);
     }
 
     @Test
