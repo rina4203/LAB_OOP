@@ -83,10 +83,13 @@ ua.lab.coffeevan
 
 ### Maven
 
-У IDEA: вкладка *Maven* → *LAB_OOP* → *Lifecycle* → `verify`. З терміналу:
+У IDEA: вкладка *Maven* → *LAB_OOP* → *Lifecycle* → `verify`.
+
+З терміналу (з кореня `LAB_OOP`) — через Maven Wrapper, встановлювати Maven
+не потрібно, достатньо JDK 17+ і змінної `JAVA_HOME`:
 
 ```bash
-mvn verify
+./mvnw verify
 ```
 
 ```bash
