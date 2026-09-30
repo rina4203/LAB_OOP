@@ -19,7 +19,7 @@ package ua.lab.coffeevan.model;
  * @author rina4203
  * @version 1.0
  */
-public enum InstantProcess {
+public enum InstantProcess implements DisplayNamed {
 
     /** Сублімована кава (висушена заморожуванням). */
     FREEZE_DRIED("сублімована", 0.22),
@@ -43,6 +43,7 @@ public enum InstantProcess {
      *
      * @return назва технології
      */
+    @Override
     public String getDisplayName() {
         return displayName;
     }

@@ -16,7 +16,7 @@ package ua.lab.coffeevan.model;
  * @author rina4203
  * @version 1.0
  */
-public enum CoffeeVariety {
+public enum CoffeeVariety implements DisplayNamed {
 
     /** Арабіка (Coffea arabica). */
     ARABICA("арабіка"),
@@ -41,6 +41,7 @@ public enum CoffeeVariety {
      *
      * @return назва сорту
      */
+    @Override
     public String getDisplayName() {
         return displayName;
     }

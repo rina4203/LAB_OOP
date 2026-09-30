@@ -12,7 +12,6 @@ package ua.lab.coffeevan;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -93,9 +92,10 @@ public class CoffeeVanApplication {
         CoffeeVanApplication application = new CoffeeVanApplication(
                 new VanConfigReader(), new CoffeeCatalogReader(),
                 new VanLoader(), new CargoReportPrinter(System.out));
-        try (Reader config = openSource(args, CONFIG_ARGUMENT, DEFAULT_CONFIG);
-                Reader catalog =
-                        openSource(args, CATALOG_ARGUMENT, DEFAULT_CATALOG)) {
+        try (Reader config = DataSources.open(args, CONFIG_ARGUMENT,
+                        DEFAULT_CONFIG);
+                Reader catalog = DataSources.open(args, CATALOG_ARGUMENT,
+                        DEFAULT_CATALOG)) {
             application.run(config, catalog);
         } catch (IOException e) {
             System.err.println("Помилка: " + e.getMessage());
@@ -128,13 +128,5 @@ public class CoffeeVanApplication {
         QualityRange range = config.getSearchRange();
         printer.printItems(SEARCH_TITLE + range, van.findByQuality(range));
         return van;
-    }
-
-    private static Reader openSource(String[] args, int index,
-            String defaultResource) throws IOException {
-        if (args.length > index) {
-            return DataSources.openFile(Path.of(args[index]));
-        }
-        return DataSources.openResource(defaultResource);
     }
 }

@@ -21,7 +21,7 @@ package ua.lab.coffeevan.model;
  * @author rina4203
  * @version 1.0
  */
-public enum PackagingType {
+public enum PackagingType implements DisplayNamed {
 
     /** Паперовий пакет з клапаном дегазації. */
     PAPER_BAG("паперовий пакет", 1.25),
@@ -51,6 +51,7 @@ public enum PackagingType {
      *
      * @return назва упаковки
      */
+    @Override
     public String getDisplayName() {
         return displayName;
     }

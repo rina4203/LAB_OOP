@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -62,6 +63,43 @@ class DataSourcesTest {
             assertTrue(reader.lines()
                     .anyMatch(line -> line.startsWith("van.capacity.liters")));
         }
+    }
+
+    @Test
+    @DisplayName("відкриває файл з аргументу командного рядка")
+    void opensFileFromArguments() throws IOException {
+        Path file = tempDir.resolve("van.properties");
+        Files.writeString(file, "з файлу", StandardCharsets.UTF_8);
+        String[] args = {file.toString()};
+
+        try (BufferedReader reader = new BufferedReader(
+                DataSources.open(args, 0, "coffee-catalog.csv"))) {
+            assertEquals("з файлу", reader.readLine());
+        }
+    }
+
+    @Test
+    @DisplayName("без аргументу відкриває вбудований ресурс")
+    void opensResourceWithoutArgument() throws IOException {
+        String[] args = {"інший-файл.properties"};
+
+        try (BufferedReader reader = new BufferedReader(
+                DataSources.open(args, 1, "van.properties"))) {
+            assertTrue(reader.lines()
+                    .anyMatch(line -> line.startsWith("van.budget")));
+        }
+    }
+
+    @Test
+    @DisplayName("створює файл і записує в нього текст у UTF-8")
+    void createsFileAsUtf8() throws IOException {
+        Path file = tempDir.resolve("saved.csv");
+
+        try (Writer writer = DataSources.createFile(file)) {
+            writer.write("Кава");
+        }
+
+        assertEquals("Кава", Files.readString(file, StandardCharsets.UTF_8));
     }
 
     @Test

@@ -19,7 +19,7 @@ package ua.lab.coffeevan.model;
  * @author rina4203
  * @version 1.0
  */
-public enum GrindSize {
+public enum GrindSize implements DisplayNamed {
 
     /** Дрібний помел (еспресо, турка). */
     FINE("дрібний", 0.45),
@@ -43,6 +43,7 @@ public enum GrindSize {
      *
      * @return назва ступеня помелу
      */
+    @Override
     public String getDisplayName() {
         return displayName;
     }

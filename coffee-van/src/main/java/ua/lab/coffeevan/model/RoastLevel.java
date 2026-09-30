@@ -19,7 +19,7 @@ package ua.lab.coffeevan.model;
  * @author rina4203
  * @version 1.0
  */
-public enum RoastLevel {
+public enum RoastLevel implements DisplayNamed {
 
     /** Світле обсмаження. */
     LIGHT("світле", 0.43),
@@ -43,6 +43,7 @@ public enum RoastLevel {
      *
      * @return назва ступеня обсмаження
      */
+    @Override
     public String getDisplayName() {
         return displayName;
     }

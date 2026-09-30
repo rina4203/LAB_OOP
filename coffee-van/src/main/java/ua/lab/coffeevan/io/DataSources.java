@@ -16,12 +16,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Відкриває текстові джерела даних (файли та ресурси програми)
+ * Відкриває текстові файли та ресурси програми для читання й запису
  * у кодуванні UTF-8.
  *
  * @author rina4203
@@ -33,6 +34,24 @@ public final class DataSources {
     }
 
     /**
+     * Відкриває файл, шлях до якого переданий аргументом командного
+     * рядка, а якщо такого аргументу немає - вбудований ресурс.
+     *
+     * @param args            аргументи командного рядка
+     * @param index           номер аргументу зі шляхом до файлу
+     * @param defaultResource ім'я ресурсу на випадок, коли аргументу немає
+     * @return потік читання
+     * @throws IOException якщо файл чи ресурс неможливо відкрити
+     */
+    public static Reader open(String[] args, int index,
+            String defaultResource) throws IOException {
+        if (args.length > index) {
+            return openFile(Path.of(args[index]));
+        }
+        return openResource(defaultResource);
+    }
+
+    /**
      * Відкриває файл з файлової системи.
      *
      * @param path шлях до файлу
@@ -41,6 +60,17 @@ public final class DataSources {
      */
     public static Reader openFile(Path path) throws IOException {
         return Files.newBufferedReader(path, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Створює (або перезаписує) файл для запису.
+     *
+     * @param path шлях до файлу
+     * @return потік запису у файл
+     * @throws IOException якщо файл неможливо створити
+     */
+    public static Writer createFile(Path path) throws IOException {
+        return Files.newBufferedWriter(path, StandardCharsets.UTF_8);
     }
 
     /**
