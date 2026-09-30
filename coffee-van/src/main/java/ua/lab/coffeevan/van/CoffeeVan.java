@@ -17,9 +17,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ua.lab.coffeevan.exception.CargoLoadingException;
 import ua.lab.coffeevan.model.Coffee;
+import ua.lab.coffeevan.model.QualityRange;
 
 /**
  * Фургон для перевезення кави.
@@ -27,7 +29,8 @@ import ua.lab.coffeevan.model.Coffee;
  * <p>Має обмежений вантажний об'єм і бюджет на закупівлю товару.
  * Фургон не дозволяє завантажити товар, якщо той не вміщується
  * за об'ємом (з урахуванням упаковки) або коштує більше, ніж залишок
- * бюджету. Вантаж можна відсортувати за ціною кілограма кави.
+ * бюджету. Вантаж можна відсортувати за ціною кілограма кави та
+ * відібрати товари з заданими параметрами якості.
  *
  * @author rina4203
  * @version 1.0
@@ -106,6 +109,20 @@ public class CoffeeVan {
      */
     public void sortCargoByPricePerKilogram() {
         cargo.sort(Comparator.comparing(Coffee::getPricePerKilogram));
+    }
+
+    /**
+     * Знаходить у фургоні товари, параметри якості яких потрапляють
+     * у заданий діапазон.
+     *
+     * @param range діапазон параметрів якості
+     * @return знайдені товари у порядку розміщення у фургоні
+     */
+    public List<Coffee> findByQuality(QualityRange range) {
+        Objects.requireNonNull(range, "Діапазон якості не задано");
+        return cargo.stream()
+                .filter(coffee -> range.contains(coffee.getQuality()))
+                .collect(Collectors.toList());
     }
 
     /**

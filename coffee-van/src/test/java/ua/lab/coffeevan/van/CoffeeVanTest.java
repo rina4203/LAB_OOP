@@ -27,6 +27,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import ua.lab.coffeevan.exception.CargoLoadingException;
 import ua.lab.coffeevan.model.Coffee;
+import ua.lab.coffeevan.model.Quality;
+import ua.lab.coffeevan.model.QualityRange;
 
 @DisplayName("Фургон кави")
 class CoffeeVanTest {
@@ -154,6 +156,37 @@ class CoffeeVanTest {
         assertEquals(List.of(cheap, middle, expensive), van.getCargo());
     }
 
+    @Test
+    @DisplayName("знаходить товари із заданим діапазоном якості")
+    void findsCoffeeByQuality() {
+        Coffee aromatic = coffeeWithQuality(new Quality(9, 8, 5));
+        Coffee bitter = coffeeWithQuality(new Quality(4, 2, 9));
+        Coffee balanced = coffeeWithQuality(new Quality(8, 6, 7));
+        van.load(aromatic);
+        van.load(bitter);
+        van.load(balanced);
+        QualityRange range = new QualityRange(new Quality(7, 5, 5),
+                new Quality(10, 9, 8));
+
+        assertEquals(List.of(aromatic, balanced), van.findByQuality(range));
+    }
+
+    @Test
+    @DisplayName("повертає порожній список, якщо нічого не знайдено")
+    void findsNothingInEmptyVan() {
+        QualityRange range = new QualityRange(new Quality(0, 0, 0),
+                new Quality(10, 10, 10));
+
+        assertTrue(van.findByQuality(range).isEmpty());
+    }
+
+    @Test
+    @DisplayName("вимагає діапазон якості для пошуку")
+    void rejectsNullRange() {
+        assertThrows(NullPointerException.class,
+                () -> van.findByQuality(null));
+    }
+
     private static Coffee coffee(String name, double volume, String price) {
         Coffee coffee = mock(Coffee.class);
         when(coffee.getName()).thenReturn(name);
@@ -166,6 +199,12 @@ class CoffeeVanTest {
         Coffee coffee = coffee("Coffee", 1.0, "10");
         when(coffee.getPricePerKilogram())
                 .thenReturn(new BigDecimal(pricePerKg));
+        return coffee;
+    }
+
+    private static Coffee coffeeWithQuality(Quality quality) {
+        Coffee coffee = coffee("Coffee", 1.0, "10");
+        when(coffee.getQuality()).thenReturn(quality);
         return coffee;
     }
 }
